@@ -1,20 +1,14 @@
 # Denial of Service
 
-This is a very common attack which we all know about in web2 as well but today we will try to immitate a Denial of Service attack on a smart contract
+A Denial of Service (DOS) attack is a type of attack that is designed to disable, shut down, or disrupt a network, website, or service. This is a very common attack which we all know about in web2 as well but today we will try to immitate a Denial of Service attack on a smart contract
 
 Lets goo 🚀
 
-
-## What is DOS?
-
-A DOS attack is an attack which is meant to make a system inaccessible to its intended users. This is usually done by flodding the network with traffic or sending some information which makes the system crash. 
-
-
-## DOS Attack on a smart contract
+## DOS Attacks in Smart Contracts
 
 ### What will happen?
 
-There will be two smart contracts - `Good.sol` and `Attack.sol`. `Good.sol` will be used to run a sample aution where it will have a function in which the current user can become the current winner of the auction by sending  `Good.sol` ETH which is of more value than the ETH which was sent by the previous winner. After the winner is replaced, the old winner is sent back the money which he initially sent to the contract.
+There will be two smart contracts - `Good.sol` and `Attack.sol`. `Good.sol` will be used to run a sample auction where it will have a function in which the current user can become the current winner of the auction by sending `Good.sol` higher amount of ETH than was sent by the previous winner. After the winner is replaced, the old winner is sent back the money which he initially sent to the contract.
 
 `Attack.sol` will attack in such a manner that after becoming the current winner of the auction, it will not allow anyone else to replace it even if the address trying to win is willing to put in more ETH. Thus `Attack.sol` will bring `Game.sol` under a DOS attack because after it becomes the winner, it will deny the ability for any other address to becomes the winner.
 
@@ -28,6 +22,12 @@ Lets build an example where you can experience how the the attack happens.
   ```bash
   npm init --yes
   npm install --save-dev hardhat
+  ```
+  
+- If you are not on mac, please do this extra step and install these libraries as well :)
+
+  ```bash
+  npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers
   ```
 
 - In the same directory where you installed Hardhat run:
@@ -43,15 +43,36 @@ Lets build an example where you can experience how the the attack happens.
 
 Now you have a hardhat project ready to go!
 
-If you are not on mac, please do this extra step and install these libraries as well :)
+and press `Enter` for all the questions.
 
-```bash
-npm install --save-dev @nomiclabs/hardhat-waffle ethereum-waffle chai @nomiclabs/hardhat-ethers ethers
+Let's create the auction contract, named `Good.sol`, with the following code.
+
+```solidity
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+contract Good {
+    address public currentWinner;
+    uint public currentAuctionPrice;
+
+    constructor() {
+        currentWinner = msg.sender;
+    }
+
+    function setCurrentAuctionPrice() public payable {
+        require(msg.value > currentAuctionPrice, "Need to pay more than the currentAuctionPrice");
+        (bool sent, ) = currentWinner.call{value: currentAuctionPrice}("");
+        if (sent) {
+            currentAuctionPrice = msg.value;
+            currentWinner = msg.sender;
+        }
+    }
+}
 ```
 
-and press `enter` for all the questions.
+This is a pretty basic contract which stores the address of the last highest bidder, and the value that they bid. Anyone can call `setCurrentAuctionPrice` and send more ETH than `currentAuctionPrice`, which will first attempt to send the last bidder their ETH back, and then set the transaction caller as the new highest bidder with their ETH value.
 
-Now  create a contract named `Attack.sol` within the `contracts` directory and write thee following lines of code
+Now, create a contract named `Attack.sol` within the `contracts` directory and write the following lines of code
 
 ```solidity
 //SPDX-License-Identifier: MIT
@@ -72,33 +93,9 @@ contract Attack {
 }
 ```
 
-After creating, `Attack.sol` in the same `contracts` directory create a new file `Good.sol`
+This contract has a function called `attack()`, that just calls `setCurrentAuctionPrice` on the `Good` contract. Note, however, this contract does not have a `fallback()` function where it can receive ETH. More on this later.
 
-```solidity
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
-
-contract Good {
-    address public currentWinner;
-    uint public currentAuctionPrice;
-
-    constructor() {
-        currentWinner = msg.sender;
-    }
-
-    function setCurrentAuctionPrice() public payable {
-        require(msg.value > currentAuctionPrice, "Need to pay more than the currentAuctionPrice");
-        (bool sent, ) = currentWinner.call{value: currentAuctionPrice}("");
-        if(sent) {
-            currentAuctionPrice = msg.value;
-            currentWinner = msg.sender;
-        }
-    }
-}
-```
-
-
-Now lets try immitating the attack using a sample test, create a new file under `test` folder named `attack.js` and add the following lines of code to it
+Let's create an attack that will cause the `Good` contract to become unusable. Create a new file under `test` folder named `attack.js` and add the following lines of code to it
 
 ```javascript
 const { expect } = require("chai");
@@ -149,10 +146,9 @@ describe("Attack", function () {
 });
 ```
 
-Notice how `Attack.sol` will lead `Good.sol` into a DOS attack. First addr1 will become the current winner by calling setCurrentAuctionPrice on `Good.sol` then `Attack.sol` will become the current winner by sending more ETH than addr1 using the attack function. Now when addr2 will try to become the new winner, it wont be able to do that because of this check(`if(sent)`) present in the `Good.sol` contract which verifies that the current winner should only be changed if the ETH is sent back to the previous current winner
+Notice how `Attack.sol` will lead `Good.sol` into a DOS attack. First `addr1` will become the current winner by calling `setCurrentAuctionPrice` on `Good.sol` then `Attack.sol` will become the current winner by sending more ETH than `addr1` using the attack function. Now when `addr2` will try to become the new winner, it wont be able to do that because of this check(`if (sent)`) present in the `Good.sol` contract which verifies that the current winner should only be changed if the ETH is sent back to the previous current winner.
 
-Now because `Attack.sol` doesnt have a `fallback` function which is necessary to accept ETH payments, `sent` is always `false` and thus the current winner is never updated and `addr2` can never become the current winner
-
+Since `Attack.sol` doesnt have a `fallback` function which is necessary to accept ETH payments, `sent` is always `false` and thus the current winner is never updated and `addr2` can never become the current winner
 
 To run the test, in your terminal pointing to the root directory of this level execute the following command
 
@@ -203,7 +199,6 @@ contract Good {
 Hope you liked this level ❤️, keep building.
 
 WAGMI 🚀
-
 
 ## Refereces
 - [Solidity by example](https://solidity-by-example.org/)
