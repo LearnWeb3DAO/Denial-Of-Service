@@ -43,8 +43,6 @@ Lets build an example where you can experience how the the attack happens.
 
 Now you have a hardhat project ready to go!
 
-and press `Enter` for all the questions.
-
 Let's create the auction contract, named `Good.sol`, with the following code.
 
 ```solidity
