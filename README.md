@@ -1,5 +1,8 @@
 # Denial of Service
 
+![image](https://user-images.githubusercontent.com/16539849/174761638-cf7c28d6-f654-4f5b-8fab-569ddc968941.png)
+
+
 A Denial of Service (DOS) attack is a type of attack that is designed to disable, shut down, or disrupt a network, website, or service. Essentially it means that the attacker somehow can prevent regular users from accessing the network, website, or service therefore denying them service. This is a very common attack which we all know about in web2 as well but today we will try to immitate a Denial of Service attack on a smart contract
 
 <Quiz questionId="545bcf50-01b7-43c6-9abd-d76200651f1c" />
