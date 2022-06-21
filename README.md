@@ -1,6 +1,9 @@
 # Denial of Service
 
-A Denial of Service (DOS) attack is a type of attack that is designed to disable, shut down, or disrupt a network, website, or service. This is a very common attack which we all know about in web2 as well but today we will try to immitate a Denial of Service attack on a smart contract
+A Denial of Service (DOS) attack is a type of attack that is designed to disable, shut down, or disrupt a network, website, or service. Essentially it means that the attacker somehow can prevent regular users from accessing the network, website, or service therefore denying them service. This is a very common attack which we all know about in web2 as well but today we will try to immitate a Denial of Service attack on a smart contract
+
+<Quiz questionId="545bcf50-01b7-43c6-9abd-d76200651f1c" />
+<Quiz questionId="2273400b-2667-4462-a6e1-2076fa078f50" />
 
 Lets goo 🚀
 
@@ -156,6 +159,8 @@ npx hardhat test
 
 When the tests pass, you will notice that the `Good.sol` is now under DOS attack because after `Attack.sol` becomes the current winner, on other address can becomes the current winner. 
 
+<Quiz questionId="cb1beb74-071c-4e66-af53-897663e88a0c" />
+
 ## Prevention
 
 - You can create a seperate withdraw function for the previous winners.
@@ -198,5 +203,11 @@ Hope you liked this level ❤️, keep building.
 
 WAGMI 🚀
 
+<Quiz questionId="0d64b651-3b16-4893-8486-87f3008857a1" />
+<Quiz questionId="eae0a815-5407-4ba6-8194-4902ef360a54" />
+<Quiz questionId="cdabfe76-94aa-4aaa-90b8-5d3df2d1aa0d" />
+
 ## Refereces
 - [Solidity by example](https://solidity-by-example.org/)
+
+<SubmitQuiz />
